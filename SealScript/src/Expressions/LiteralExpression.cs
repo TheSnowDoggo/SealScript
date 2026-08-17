@@ -18,6 +18,6 @@ public class LiteralExpression : Expression
 
     public override string ToString()
     {
-        return Value.ValueType == SealValueType.String ? $"\"{Value}\"" : Value.ToString();
+        return Value.ToString(false);
     }
 }
