@@ -1,0 +1,23 @@
+#no_terminators
+
+func gen_array(n) {
+    var array = Array.new(n)
+    
+    for i in range(n) {
+        array[i] = i
+    }
+    
+    return array
+}
+
+var arr = gen_array(10)
+
+var rand = Random.new()
+
+var pick = []
+
+for i in range(5) {
+    pick.push_back(arr[rand.randi(arr.size)])
+}
+
+println(pick)
