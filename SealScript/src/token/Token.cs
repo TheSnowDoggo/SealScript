@@ -1,6 +1,6 @@
 namespace SealScript;
 
-public class Token
+public class Token : ILineNumbered
 {
     public Token(int line, int column, TokenType tokenType, SealValue value = default)
     {

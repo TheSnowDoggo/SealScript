@@ -18,26 +18,26 @@ public class PropertySealField : SealField
         _settableType = settableType;
     }
 
-    public override SealValue Get(CallContext context, SealValue self)
+    public override SealValue Get(CallContext context, string name, SealValue self)
     {
         if (_getter == null)
         {
-            throw new SealException(context, "Field does not have a getter.");
+            throw new SealException(context, $"Field {name} does not have a getter.");
         }
 
         return _getter(self);
     }
 
-    public override void Set(CallContext context, SealValue self, SealValue value)
+    public override void Set(CallContext context, string name, SealValue self, SealValue value)
     {
         if (_setter == null)
         {
-            throw new SealException(context, "Field does not have a setter.");
+            throw new SealException(context, $"Field {name} does not have a setter.");
         }
 
         if (!value.IsTypeAllowed(_settableType))
         {
-            throw new SealException(context, $"Field expected value of type(s) [{_settableType}], got {value.ValueType}.");
+            throw new SealException(context, $"Field {name} expected value of type(s) [{_settableType}], got {value.ValueType}.");
         }
         
         _setter(self, value);

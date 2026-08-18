@@ -1,6 +1,6 @@
 namespace SealScript;
 
-public abstract class Statement
+public abstract class Statement : ILineNumbered
 {
     public int Line { get; init; }
     public int Column { get; init; }

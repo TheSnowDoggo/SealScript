@@ -16,6 +16,6 @@ public class ClassDefinitionExpression : Expression
 
     public override string ToString()
     {
-        return Definition.ToString();
+        return $"CreateClass<{Definition.Name}>";
     }
 }

@@ -25,7 +25,7 @@ public class SealClass
             throw new InvalidOperationException($"An instance field with name {name} has already been defined.");
         }
     }
-    
+
     public override string ToString()
     {
         return $"Class<{Name}>";

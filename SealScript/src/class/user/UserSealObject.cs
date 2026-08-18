@@ -30,7 +30,7 @@ public class UserSealObject : SealObject
     {
         if (Class.Fields.TryGetValue("toString", out SealField field))
         {
-            SealValue value = field.Get(null, this);
+            SealValue value = field.Get(null, "toString", this);
 
             if (value.ValueType == SealValueType.Function)
             {

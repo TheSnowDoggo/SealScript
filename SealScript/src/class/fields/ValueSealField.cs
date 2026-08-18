@@ -11,13 +11,13 @@ public class ValueSealField : SealField
         _value = value;
     }
 
-    public override SealValue Get(CallContext context, SealValue self)
+    public override SealValue Get(CallContext context, string name, SealValue self)
     {
         return _value;
     }
 
-    public override void Set(CallContext context, SealValue self, SealValue value)
+    public override void Set(CallContext context, string name, SealValue self, SealValue value)
     {
-        throw new SealException(context, "Cannot set readonly field.");
+        throw new SealException(context, $"Cannot set immutable field {name}.");
     }
 }

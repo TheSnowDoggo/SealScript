@@ -15,14 +15,14 @@ public class MemberFieldExpression : AssignableExpression
     {
         SealField field = GetField(context, out SealValue self);
 
-        return field.Get(context, self);
+        return field.Get(context, MemberIdentifier, self);
     }
 
     public override void Assign(CallContext context, SealValue value)
     {
         SealField field = GetField(context, out SealValue self);
         
-        field.Set(context, self, value);
+        field.Set(context, MemberIdentifier, self, value);
     }
 
     public SealField GetField(CallContext context, out SealValue self)

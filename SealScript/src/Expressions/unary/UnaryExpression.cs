@@ -1,3 +1,5 @@
+using System;
+
 namespace SealScript.Expressions;
 
 public class UnaryExpression : Expression
@@ -11,6 +13,13 @@ public class UnaryExpression : Expression
     public UnaryType UnaryType { get; }
     public Expression Operand { get; set; }
 
+    public static char ToSymbol(UnaryType unaryType) => unaryType switch
+    {
+        UnaryType.Minus => '-',
+        UnaryType.Not => '!',
+        _ => throw new ArgumentException($"Invalid unary type {unaryType}.")
+    };
+
     public override SealValue Evaluate(CallContext context)
     {
         return Evaluate(context, Operand.Evaluate(context));
@@ -18,7 +27,7 @@ public class UnaryExpression : Expression
 
     public override string ToString()
     {
-        return $"{UnaryType} {Operand}";
+        return $"{ToSymbol(UnaryType)}{Operand}";
     }
 
     private SealValue Evaluate(CallContext context, SealValue a)

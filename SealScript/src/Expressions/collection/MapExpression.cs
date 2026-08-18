@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 
 namespace SealScript.Expressions;
 
@@ -32,5 +33,31 @@ public class MapExpression : Expression
         }
 
         return new SealMap(values);
+    }
+
+    public override string ToString()
+    {
+        if (ItemExpressions == null)
+        {
+            return "Map.new{  }";
+        }
+
+        var sb = new StringBuilder();
+
+        sb.Append("Map.new");
+
+        int start = sb.Length;
+
+        foreach (var kvp in ItemExpressions)
+        {
+            sb.Append($", {kvp.Key}: {kvp.Value}");
+        }
+
+        sb[start] = '{';
+        sb[start + 1] = ' ';
+        
+        sb.Append(" }");
+        
+        return sb.ToString();
     }
 }

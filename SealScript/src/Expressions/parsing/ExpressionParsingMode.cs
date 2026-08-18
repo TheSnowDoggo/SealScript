@@ -1,6 +1,6 @@
 namespace SealScript.Expressions;
 
-public enum ParsingMode
+public enum ExpressionParsingMode
 {
     Statement,
     Block,

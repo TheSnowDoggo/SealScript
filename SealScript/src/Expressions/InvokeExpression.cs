@@ -21,7 +21,8 @@ public class InvokeExpression : Expression
         
         if (FunctionExpression is MemberFieldExpression memberFieldExpression)
         {
-            functionValue = memberFieldExpression.GetField(context, out SealValue value).Get(context, value);
+            functionValue = memberFieldExpression.GetField(context, out SealValue value)
+                .Get(context, memberFieldExpression.MemberIdentifier, value);
 
             if (value.ValueType == SealValueType.Object)
             {

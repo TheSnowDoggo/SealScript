@@ -56,6 +56,7 @@ public static class SealConfig
     public static readonly FrozenDictionary<string, TokenType> KeywordMap = new Dictionary<string, TokenType>()
     {
         { "var", TokenType.Var },
+        { "const", TokenType.Const },
         { "func", TokenType.Func },
         { "class", TokenType.Class },
         { "constructor", TokenType.Constructor },

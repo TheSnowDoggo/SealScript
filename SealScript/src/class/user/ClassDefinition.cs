@@ -28,30 +28,54 @@ public class ClassDefinition
             StaticFields = StaticFields,
         };
 
-        sealClass.Constructor = new NativeFunction((_, args) =>
+        if (constructor == null)
         {
-            var instance = new UserSealObject(sealClass);
-
-            for (int i = 0; i < FieldsExpressions.Length; i++)
+            sealClass.Constructor = new NativeFunction((_, _) =>
             {
-                instance.SetField(i, FieldsExpressions[i].Evaluate(context));
-            }
-
-            if (constructor != null)
+                var instance = new UserSealObject(sealClass);
+                InitializeInstanceFields(context, instance);
+                return instance;
+            })
             {
+                CustomName = $"{Name}.new",
+                MaxArgs = 0,
+            };
+        }
+        else
+        {
+            sealClass.Constructor = new NativeFunction((_, args) =>
+            {
+                var instance = new UserSealObject(sealClass);
+            
+                InitializeInstanceFields(context, instance);
+
                 instance.Constructing = true;
-            
-                constructor.Invoke(instance, args);
-            
-                instance.Constructing = false;
-            }
 
-            return instance;
-        });
+                constructor._Invoke(instance, args);
+
+                instance.Constructing = false;
+
+                return instance;
+            })
+            {
+                CustomName = $"{Name}.new",
+                MinArgs = constructor.MinArgs,
+                MaxArgs = constructor.MaxArgs,
+                ArgumentTypes = constructor.ArgumentTypes,
+            };
+        }
         
         return sealClass;
     }
 
+    private void InitializeInstanceFields(CallContext context, UserSealObject instance)
+    {
+        for (int i = 0; i < FieldsExpressions.Length; i++)
+        {
+            instance.SetField(i, FieldsExpressions[i].Evaluate(context));
+        }
+    }
+    
     private SealValue[] InitializeStaticFields(CallContext context)
     {
         int length = StaticFieldsExpressions.Length;

@@ -57,6 +57,7 @@ public enum TokenType
     Flag,
     
     Var,
+    Const,
     Func,
     Class,
     Constructor,

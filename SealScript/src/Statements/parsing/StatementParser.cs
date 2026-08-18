@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata;
 using SealScript.Expressions;
 
 namespace SealScript.Statements;
@@ -29,7 +30,7 @@ public class StatementParser
             Statements = statements.ToArray(),
         };
     }
-
+    
     public FunctionDefinition ParseFunctionDefinition(string name = "anonymous")
     {
         if (_stream.TryConsume(TokenType.Identifier, out Token identifierToken))
@@ -39,15 +40,42 @@ public class StatementParser
         
         _stream.Consume(TokenType.OpenParen);
 
-        var arguments = new List<string>();
+        var arguments = new HashSet<string>();
+        var argumentTypes = new List<ArgumentType>();
+        var defaultArgs = new List<Expression>();
 
         if (!_stream.TryConsume(TokenType.CloseParen))
         {
             while (!_stream.EndOfStream)
             {
                 string argument = _stream.Consume(TokenType.Identifier).Value.AsString();
-            
-                arguments.Add(argument);
+
+                if (!arguments.Add(argument))
+                {
+                    throw new SealException(_stream,
+                        $"Function argument with name {argument} has already been defined.");
+                }
+
+                ArgumentType argumentType = ArgumentType.Any;
+                
+                if (_stream.TryConsume(TokenType.Colon))
+                {
+                    argumentType = ParseArgumentType();
+                }
+
+                if (_stream.TryConsume(TokenType.Assign))
+                {
+                    var expressionParser = new ExpressionParser(_stream, ExpressionParsingMode.Argument);
+                    
+                    defaultArgs.Add(expressionParser.Parse());
+                }
+                else if (defaultArgs.Count > 0)
+                {
+                    throw new SealException(_stream,
+                        "All final function arguments must have a default value.");
+                }
+                
+                argumentTypes.Add(argumentType);
 
                 if (_stream.Peek().TokenType == TokenType.CloseParen)
                 {
@@ -65,9 +93,56 @@ public class StatementParser
         return new FunctionDefinition()
         {
             Name = name,
-            Arguments = arguments.ToArray(),
+            Arguments = [..arguments],
+            DefaultArguments = [..defaultArgs],
             Statements = statments,
+            MinArgs = arguments.Count - defaultArgs.Count,
+            MaxArgs = arguments.Count,
+            ArgumentTypes = [..argumentTypes],
         };
+    }
+
+    private ArgumentType ParseArgumentType(bool statementMode = false)
+    {
+        if (_stream.EndOfStream)
+        {
+            return ArgumentType.None;
+        }
+        
+        ArgumentType argumentType = ArgumentType.None;
+
+        int startLine = _stream.Peek().Line;
+        
+        while (!_stream.EndOfStream)
+        {
+            string type = _stream.Consume(TokenType.Identifier).Value.AsString();
+
+            if (!Enum.TryParse(type, false, out ArgumentType nextArgumentType))
+            {
+                throw new SealException(_stream,
+                    $"Function argument type {type} must be a native type.");
+            }
+                        
+            argumentType |= nextArgumentType;
+
+            Token next = _stream.Peek();
+
+            if (_stream.HasFlag(StatementParsingFlag.NoTerminators) 
+                && statementMode 
+                && next.Line != startLine)
+            {
+                break;
+            }
+            
+            if (next.TokenType is TokenType.Comma or TokenType.Assign or TokenType.CloseParen)
+            {
+                break;
+            }
+
+            _stream.Consume(TokenType.Or);
+        }
+
+        return argumentType;
     }
     
     public ClassDefinition ParseClassDefinition()
@@ -83,7 +158,7 @@ public class StatementParser
         var staticFieldExpressions = new List<Expression>();
         
         // Constructor is always at location -1
-        staticFields.Add("new", new StaticUserSealField(-1));
+        staticFields.Add("new", new StaticUserSealField(-1, ArgumentType.None));
         
         FunctionDefinition userConstructor = null;
 
@@ -108,6 +183,7 @@ public class StatementParser
             switch (token.TokenType)
             {
             case TokenType.Var:
+            case TokenType.Const:    
             case TokenType.Func:
             case TokenType.Class:    
             {
@@ -120,7 +196,7 @@ public class StatementParser
 
                 if (isStatic)
                 {
-                    var field = new StaticUserSealField(staticFieldExpressions.Count);
+                    var field = new StaticUserSealField(staticFieldExpressions.Count, define.AllowedTypes);
                     staticFieldExpressions.Add(define.Expression);
 
                     if (!staticFields.TryAdd(define.Name, field))
@@ -131,7 +207,7 @@ public class StatementParser
                 }
                 else
                 {
-                    var field = new UserSealField(fieldExpressions.Count);
+                    var field = new UserSealField(fieldExpressions.Count, define.AllowedTypes);
                     
                     fieldExpressions.Add(define.Expression);
 
@@ -167,7 +243,7 @@ public class StatementParser
         }
 
         _stream.Consume(TokenType.CloseBrace);
-
+        
         return new ClassDefinition()
         {
             Name = name,
@@ -194,7 +270,7 @@ public class StatementParser
         
         return head.TokenType switch
         {
-            TokenType.Var
+            TokenType.Var or TokenType.Const
                 => ParseDefineStatement(),
             TokenType.Identifier
                 => ParseExpressionStatement(),
@@ -221,10 +297,10 @@ public class StatementParser
         switch (flag)
         {
         case "no_terminators":
-            _stream.ParsingFlags |= ParsingFlag.NoTerminators;
+            _stream.StatementParsingFlags |= StatementParsingFlag.NoTerminators;
             break;
         case "terminators":
-            _stream.ParsingFlags &= ~ParsingFlag.NoTerminators;
+            _stream.StatementParsingFlags &= ~StatementParsingFlag.NoTerminators;
             break;
         default:
             throw new SealException(_stream, $"Unrecognised flag '{flag}'.");
@@ -236,15 +312,26 @@ public class StatementParser
         Token head = _stream.Read();
 
         string name = _stream.Consume(TokenType.Identifier).Value.AsString();
+        
+        ArgumentType allowedTypes = ArgumentType.Any;
+        
+        if (head.TokenType == TokenType.Const)
+        {
+            allowedTypes = ArgumentType.None;
+        }
+        else if (_stream.TryConsume(TokenType.Colon))
+        {
+            allowedTypes = ParseArgumentType(true);
+        }
 
         Expression expression = LiteralExpression.Nil;
 
         if (_stream.TryConsume(TokenType.Assign))
         {
-            expression = new ExpressionParser(_stream, ParsingMode.Statement).Parse();
+            expression = new ExpressionParser(_stream, ExpressionParsingMode.Statement).Parse();
         }
 
-        if (!_stream.ParsingFlags.HasFlag(ParsingFlag.NoTerminators))
+        if (!_stream.StatementParsingFlags.HasFlag(StatementParsingFlag.NoTerminators))
         {
             _stream.Consume(TokenType.Semicolon);
         }
@@ -254,6 +341,7 @@ public class StatementParser
             Line = head.Line,
             Column = head.Column,
             Name = name,
+            AllowedTypes = allowedTypes,
             Expression = expression,
         };
     }
@@ -262,9 +350,9 @@ public class StatementParser
     {
         Token head = _stream.Peek();
         
-        Expression expression = new ExpressionParser(_stream, ParsingMode.Statement).Parse();
+        Expression expression = new ExpressionParser(_stream, ExpressionParsingMode.Statement).Parse();
 
-        if (!_stream.ParsingFlags.HasFlag(ParsingFlag.NoTerminators))
+        if (!_stream.StatementParsingFlags.HasFlag(StatementParsingFlag.NoTerminators))
         {
             _stream.Consume(TokenType.Semicolon);
         }
@@ -312,7 +400,7 @@ public class StatementParser
     {
         Token head = _stream.Read();
 
-        Expression expression = new ExpressionParser(_stream, ParsingMode.Block).Parse();
+        Expression expression = new ExpressionParser(_stream, ExpressionParsingMode.Block).Parse();
         
         Statement[] statements = ReadStatementBlock();
 
@@ -338,9 +426,9 @@ public class StatementParser
     {
         Token head = _stream.Read();
         
-        Expression expression = new ExpressionParser(_stream, ParsingMode.Statement).Parse();
+        Expression expression = new ExpressionParser(_stream, ExpressionParsingMode.Statement).Parse();
 
-        if (!_stream.ParsingFlags.HasFlag(ParsingFlag.NoTerminators))
+        if (!_stream.StatementParsingFlags.HasFlag(StatementParsingFlag.NoTerminators))
         {
             _stream.Consume(TokenType.Semicolon);
         }
@@ -375,6 +463,7 @@ public class StatementParser
             Line = head.Line,
             Column = head.Column,
             Name = name,
+            AllowedTypes = ArgumentType.None,
             Expression = expression,
         };
     }
@@ -399,6 +488,7 @@ public class StatementParser
             Line = head.Line,
             Column = head.Column,
             Name = definition.Name,
+            AllowedTypes = ArgumentType.None,
             Expression = expression,
         };
     }
@@ -407,7 +497,7 @@ public class StatementParser
     {
         Token head = _stream.Read();
         
-        Expression condition = new ExpressionParser(_stream, ParsingMode.Block).Parse();
+        Expression condition = new ExpressionParser(_stream, ExpressionParsingMode.Block).Parse();
 
         Statement[] statements = ReadStatementBlock();
 
@@ -428,7 +518,7 @@ public class StatementParser
 
         _stream.Consume(TokenType.In);
         
-        Expression expression = new ExpressionParser(_stream, ParsingMode.Block).Parse();
+        Expression expression = new ExpressionParser(_stream, ExpressionParsingMode.Block).Parse();
         
         Statement[] statements = ReadStatementBlock();
         

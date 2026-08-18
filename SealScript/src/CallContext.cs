@@ -2,9 +2,9 @@ using System.Collections.Generic;
 
 namespace SealScript;
 
-public class CallContext
+public class CallContext : ILineNumbered
 {
-    private readonly Dictionary<string, Stack<SealValue>> _variables = [];
+    private readonly Dictionary<string, Stack<Variable>> _variables = [];
     private readonly Stack<HashSet<string>> _scopes = [];
 
     public CallContext(SealProgram sealProgram, CallContext parentContext)
@@ -33,7 +33,7 @@ public class CallContext
 
         foreach (string name in scope)
         {
-            if (!_variables.TryGetValue(name, out Stack<SealValue> variableStack))
+            if (!_variables.TryGetValue(name, out Stack<Variable> variableStack))
             {
                 continue;
             }
@@ -50,7 +50,7 @@ public class CallContext
         }
     }
 
-    public void DefineVariable(string name, SealValue value)
+    public void DefineVariable(string name, SealValue value, ArgumentType allowedTypes = ArgumentType.Any)
     {
         if (!_scopes.TryPeek(out HashSet<string> scope))
         {
@@ -62,52 +62,80 @@ public class CallContext
             throw new SealException(Line, Column, $"Variable with name '{name}' has already been defined in this scope.");
         }
         
-        if (!_variables.TryGetValue(name, out Stack<SealValue> variableStack))
+        if (!_variables.TryGetValue(name, out Stack<Variable> variableStack))
         {
             _variables[name] = variableStack = [];
         }
         
-        variableStack.Push(value);
+        if (allowedTypes != ArgumentType.None && !value.IsTypeAllowed(allowedTypes))
+        {
+            throw new SealException(this,
+                $"Variable {name} expected value of type {allowedTypes.ToArgumentString()}, got {value.ValueType}.");
+        }
+
+        var variable = new Variable()
+        {
+            Value = value,
+            AllowedTypes = allowedTypes,
+        };
+        
+        variableStack.Push(variable);
     }
 
     public void SetValue(string name, SealValue newValue)
     {
-        CallContext current = this;
+        Variable variable = GetVariable(name);
 
-        while (current != null)
+        if (variable == null)
         {
-            if (current._variables.TryGetValue(name, out Stack<SealValue> variableStack))
-            {
-                variableStack.Pop();
-                variableStack.Push(newValue);
-                return;
-            }
-            
-            current = current.ParentContext;
+            throw new SealException(this, $"No variable with name {name} defined in current scope.");
+        }
+
+        if (variable.AllowedTypes == ArgumentType.None)
+        {
+            throw new SealException(this, $"Variable {name} cannot be set as it is immutable.");
+        }
+
+        if (!newValue.IsTypeAllowed(variable.AllowedTypes))
+        {
+            throw new SealException(this,
+                $"Variable {name} expected value of type {variable.AllowedTypes.ToArgumentString()}, got {newValue.ValueType}.");
         }
         
-        throw new SealException(Line, Column, $"No variable with name {name} defined in current scope.");
+        variable.Value = newValue;
     }
 
     public SealValue GetValue(string name)
     {
-        CallContext current = this;
+        Variable variable = GetVariable(name);
 
+        if (variable != null)
+        {
+            return variable.Value;
+        }
+        
+        if (SealGlobal.ClassInstance.StaticFields.TryGetValue(name, out SealField field))
+        {
+            return field.Get(this, name, SealValue.Nil);
+        }
+        
+        throw new SealException(this, $"No variable with name {name} defined in current scope.");
+    }
+
+    private Variable GetVariable(string name)
+    {
+        CallContext current = this;
+        
         while (current != null)
         {
-            if (current._variables.TryGetValue(name, out Stack<SealValue> variableStack))
+            if (current._variables.TryGetValue(name, out Stack<Variable> variableStack))
             {
                 return variableStack.Peek();
             }
             
             current = current.ParentContext;
         }
-        
-        if (SealGlobal.ClassInstance.StaticFields.TryGetValue(name, out SealField field))
-        {
-            return field.Get(this, SealValue.Nil);
-        }
-        
-        throw new SealException(Line, Column, $"No variable with name {name} defined in current scope.");
+
+        return null;
     }
 }

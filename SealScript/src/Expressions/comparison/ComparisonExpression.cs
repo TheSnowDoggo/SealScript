@@ -1,3 +1,5 @@
+using System;
+
 namespace SealScript.Expressions;
 
 public class ComparisonExpression : BinaryExpression
@@ -9,6 +11,17 @@ public class ComparisonExpression : BinaryExpression
     }
     
     public ComparisonType ComparisonType { get; }
+
+    public static string ToSymbol(ComparisonType comparisonType) => comparisonType switch
+    {
+        ComparisonType.LessThan           => "<",
+        ComparisonType.GreaterThan        => ">",
+        ComparisonType.LessThanOrEqual    => "<=",
+        ComparisonType.GreaterThanOrEqual => ">=",
+        ComparisonType.Equals             => "==",
+        ComparisonType.NotEquals          => "!=",
+        _ => throw new ArgumentException($"Invalid comparison type {comparisonType}.")
+    };
     
     public override SealValue Evaluate(CallContext context)
     {
@@ -17,7 +30,7 @@ public class ComparisonExpression : BinaryExpression
 
     public override string ToString()
     {
-        return $"{Left} {ComparisonType} {Right}";
+        return $"{ToSymbol(ComparisonType)}({Left}, {Right})";
     }
 
     private bool Compare(CallContext context, SealValue a, SealValue b)

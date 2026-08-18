@@ -1,4 +1,6 @@
 using System.IO;
+using System.Text;
+using SealScript.Expressions;
 using SealScript.Statements;
 
 namespace SealScript;
@@ -41,29 +43,13 @@ public class UserFunction : Function
         return definition.CreateFunction(parentContext);
     }
     
-    public override SealValue Invoke(SealObject self, CallArgs args)
+    internal override SealValue _Invoke(SealObject self, CallArgs args)
     {
         var localContext = new CallContext(ParentContext?.SealProgram, ParentContext);
         
         localContext.OpenScope();
 
-        if (self != null)
-        {
-            localContext.DefineVariable("self", self);
-        }
-
-        string[] arguments = Definition.Arguments;
-
-        if (args.Length > arguments.Length)
-        {
-            throw new SealException(args.Context,
-                $"Function expected maximum of {arguments.Length} arguments, got {args.Length}.");
-        }
-
-        for (int i = 0; i < arguments.Length; i++)
-        {
-            localContext.DefineVariable(arguments[i], i < args.Length ? args[i] : SealValue.Nil);
-        }
+        DefineArguments(localContext, self, args);
         
         Statement[] statements = Definition.Statements;
             
@@ -91,6 +77,74 @@ public class UserFunction : Function
 
     public override string ToString()
     {
-        return Definition.GetHeader();
+        var sb = new StringBuilder();
+
+        sb.Append(Name);
+        
+        sb.Append('(');
+
+        string[] arguments = Definition.Arguments;
+        Expression[] defaultArguments = Definition.DefaultArguments;
+        
+        int defaultArgumentStart = arguments.Length - defaultArguments.Length;
+        
+        for (int i = 0; i < Definition.Arguments.Length; i++)
+        {
+            if (i != 0)
+            {
+                sb.Append(", ");
+            }
+            
+            sb.Append(Definition.Arguments[i]);
+            sb.Append(": ");
+            sb.Append(Definition.ArgumentTypes[i].ToArgumentString());
+            
+            int defaultArgumentIndex = i - defaultArgumentStart;
+
+            if (defaultArgumentIndex >= 0)
+            {
+                sb.Append(" = ");
+                sb.Append(defaultArguments[defaultArgumentIndex]);
+            }
+        }
+
+        sb.Append(')');
+        
+        return sb.ToString();
+    }
+
+    private void DefineArguments(CallContext localContext, SealObject self, CallArgs args)
+    {
+        if (self != null)
+        {
+            localContext.DefineVariable("self", self, ArgumentType.None);
+        }
+        
+        string[] arguments = Definition.Arguments;
+
+        if (args.Length > arguments.Length)
+        {
+            throw new SealException(args.Context,
+                $"Function expected maximum of {arguments.Length} arguments, got {args.Length}.");
+        }
+
+        for (int i = 0; i < args.Length; i++)
+        {
+            localContext.DefineVariable(arguments[i], args[i]);
+        }
+
+        if (args.Length == arguments.Length)
+        {
+            return;
+        }
+        
+        Expression[] defaultArguments = Definition.DefaultArguments;
+
+        for (int i = args.Length; i < arguments.Length; i++)
+        {
+            Expression defaultArgument = defaultArguments[i - args.Length];
+            
+            localContext.DefineVariable(arguments[i], defaultArgument.Evaluate(localContext));
+        }
     }
 }

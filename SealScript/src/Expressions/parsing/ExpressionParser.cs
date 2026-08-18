@@ -10,15 +10,15 @@ public class ExpressionParser
     private readonly Stack<Expression> _expressionStack = [];
     private readonly Stack<Token> _operatorStack= [];
 
-    private readonly ParsingMode _parsingMode;
+    private readonly ExpressionParsingMode _expressionParsingMode;
 
     private int _startLine;
     private int _bracketDepth;
     
-    public ExpressionParser(TokenStream stream, ParsingMode parsingMode)
+    public ExpressionParser(TokenStream stream, ExpressionParsingMode expressionParsingMode)
     {
         _stream = stream;
-        _parsingMode = parsingMode;
+        _expressionParsingMode = expressionParsingMode;
     }
 
     public Expression Parse()
@@ -150,16 +150,16 @@ public class ExpressionParser
             return true;
         }
 
-        return _parsingMode switch
+        return _expressionParsingMode switch
         {
             // Exit on newline when no terminator mode is enabled
-            ParsingMode.Statement 
-                => _stream.HasFlag(ParsingFlag.NoTerminators) 
+            ExpressionParsingMode.Statement 
+                => _stream.HasFlag(StatementParsingFlag.NoTerminators) 
                     && _startLine != token.Line
                     || token.TokenType == TokenType.CloseBrace,
-            ParsingMode.Block 
+            ExpressionParsingMode.Block 
                 => token.TokenType == TokenType.OpenBrace,
-            ParsingMode.Argument 
+            ExpressionParsingMode.Argument 
                 => token.TokenType is TokenType.Comma
                     or TokenType.Colon
                     or TokenType.CloseBrace
@@ -413,7 +413,7 @@ public class ExpressionParser
         
         var argumentExpressions = new List<Expression>();
 
-        var argumentParser = new ExpressionParser(_stream, ParsingMode.Argument);
+        var argumentParser = new ExpressionParser(_stream, ExpressionParsingMode.Argument);
         
         if (!_stream.TryConsume(TokenType.CloseParen))
         {
@@ -455,7 +455,7 @@ public class ExpressionParser
         
         PopUnary(token, out Expression instanceExpression);
 
-        var valueParser = new ExpressionParser(_stream, ParsingMode.Argument);
+        var valueParser = new ExpressionParser(_stream, ExpressionParsingMode.Argument);
         
         Expression indexExpression = valueParser.Parse();
 
@@ -490,7 +490,7 @@ public class ExpressionParser
         
         var itemExpressions = new List<Expression>();
         
-        var itemParser = new ExpressionParser(_stream, ParsingMode.Argument);
+        var itemParser = new ExpressionParser(_stream, ExpressionParsingMode.Argument);
 
         while (!_stream.EndOfStream)
         {
@@ -521,7 +521,7 @@ public class ExpressionParser
         
         var itemExpressions = new Dictionary<Expression, Expression>();
         
-        var itemParser = new ExpressionParser(_stream, ParsingMode.Argument);
+        var itemParser = new ExpressionParser(_stream, ExpressionParsingMode.Argument);
         
         while (!_stream.EndOfStream)
         {

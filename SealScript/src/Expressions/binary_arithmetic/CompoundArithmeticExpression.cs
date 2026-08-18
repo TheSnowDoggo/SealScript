@@ -26,6 +26,6 @@ public class CompoundArithmeticExpression : Expression
     
     public override string ToString()
     {
-        return $"{Left} {ArithmeticType}= {Right}";
+        return $"{Left} {ArithmeticExpression.ToSymbol(ArithmeticType)}= {Right}";
     }
 }

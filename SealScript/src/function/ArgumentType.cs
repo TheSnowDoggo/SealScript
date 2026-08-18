@@ -5,6 +5,7 @@ namespace SealScript;
 [Flags]
 public enum ArgumentType
 {
+    None     = 0,
     Nil      = 1 << 0,
     Bool     = 1 << 1,
     Number   = 1 << 2,

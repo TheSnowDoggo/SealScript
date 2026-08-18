@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 
 namespace SealScript.Expressions;
 
@@ -28,5 +29,31 @@ public class ArrayExpression : Expression
         }
 
         return new SealArray(values);
+    }
+
+    public override string ToString()
+    {
+        if (ItemExpressions == null)
+        {
+            return "Array.new[  ]";
+        }
+
+        var sb = new StringBuilder();
+
+        sb.Append("Array.new");
+
+        int start = sb.Length;
+
+        for (int i = 0; i < ItemExpressions.Length; i++)
+        {
+            sb.Append($", {ItemExpressions[i]}");
+        }
+
+        sb[start] = '[';
+        sb[start + 1] = ' ';
+        
+        sb.Append(" ]");
+        
+        return sb.ToString();
     }
 }

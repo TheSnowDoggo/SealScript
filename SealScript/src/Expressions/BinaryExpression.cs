@@ -10,9 +10,4 @@ public abstract class BinaryExpression : Expression
     
     public Expression Left { get; }
     public Expression Right { get; }
-
-    public override string ToString()
-    {
-        return $"{GetType().Name}({Left}, {Right})";
-    }
 }

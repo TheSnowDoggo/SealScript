@@ -1,4 +1,6 @@
-﻿namespace SealScript;
+﻿using System;
+
+namespace SealScript;
 
 internal static class Program
 {
@@ -7,7 +9,28 @@ internal static class Program
     private static void Main(string[] args)
     {
         SealGlobal.ImportExecutingAssembly();
-        
+
+        RunNice();
+    }
+
+    private static void RunNice()
+    {
+        try
+        {
+            var fn = UserFunction.CreateFromScript(ScriptPath);
+
+            fn.Invoke();
+        }
+        catch (SealException ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write(ex.Message);
+            Console.ResetColor();
+        }
+    }
+    
+    private static void RunDebug()
+    {
         var fn = UserFunction.CreateFromScript(ScriptPath);
 
         fn.Invoke();

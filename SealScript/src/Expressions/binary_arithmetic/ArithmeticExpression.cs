@@ -1,3 +1,5 @@
+using System;
+
 namespace SealScript.Expressions;
 
 public class ArithmeticExpression : BinaryExpression
@@ -27,6 +29,19 @@ public class ArithmeticExpression : BinaryExpression
         };
     }
 
+    public static char ToSymbol(ArithmeticType arithmeticType) => arithmeticType switch
+    {
+        ArithmeticType.Multiply => '*',
+        ArithmeticType.Divide   => '/',
+        ArithmeticType.Modulo   => '%',
+        ArithmeticType.Add      => '+',
+        ArithmeticType.Subtract => '-',
+        ArithmeticType.And      => '&',
+        ArithmeticType.Xor      => '^',
+        ArithmeticType.Or       => '|',
+        _ => throw new ArgumentException($"Invalid arithmetic type {arithmeticType}.")
+    };
+    
     public override SealValue Evaluate(CallContext context)
     {
         return Evaluate(ArithmeticType, context, Left.Evaluate(context), Right.Evaluate(context));
@@ -34,7 +49,7 @@ public class ArithmeticExpression : BinaryExpression
     
     public override string ToString()
     {
-        return $"{Left} {ArithmeticType} {Right}";
+        return $"{ToSymbol(ArithmeticType)}({Left}, {Right})";
     }
     
     private static SealValue EvaluateMultiply(CallContext context, SealValue a, SealValue b)

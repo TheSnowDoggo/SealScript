@@ -2,7 +2,7 @@ using System;
 
 namespace SealScript;
 
-public class TokenStream
+public class TokenStream : ILineNumbered
 {
     private readonly Token[] _tokens;
     
@@ -26,13 +26,13 @@ public class TokenStream
     public int Line => LastToken?.Line ?? -1;
     public int Column => LastToken?.Column ?? -1;
     
-    public ParsingFlag ParsingFlags { get; set; }
+    public StatementParsingFlag StatementParsingFlags { get; set; }
 
     public Token this[int position] => _tokens[position];
 
-    public bool HasFlag(ParsingFlag flag)
+    public bool HasFlag(StatementParsingFlag flag)
     {
-        return (ParsingFlags & flag) != 0;
+        return (StatementParsingFlags & flag) != 0;
     }
 
     public Token Peek()

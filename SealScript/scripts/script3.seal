@@ -1,23 +1,16 @@
 #no_terminators
 
-func gen_array(n) {
-    var array = Array.new(n)
+var Foo: Class = class Foo {
+    const id // Const Variables and Fields do not specify types (as they are immutable)
+    var name: String
     
-    for i in range(n) {
-        array[i] = i
+    constructor(id: Number) {
+        self.id = id // Const fields can be set in a constructor
     }
-    
-    return array
 }
 
-var arr = gen_array(10)
+var obj = Foo.new(3)
 
-var rand = Random.new()
-
-var pick = []
-
-for i in range(5) {
-    pick.push_back(arr[rand.randi(arr.size)])
-}
-
-println(pick)
+obj.name = "hello" // fine
+obj.name = 4 // Error at 15:0 Field Foo.name expected value of type String, got Number.
+obj.id = 3 // Error at 16:0 Cannot set field Foo.id as it is immutable.
