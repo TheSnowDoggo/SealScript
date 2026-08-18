@@ -174,6 +174,12 @@ public sealed class SealGlobal : SealObject
             _ => throw new ArgumentException($"Value {value.ValueType} must be a Function, Object or Class."),
         };
     }
+
+    [FunctionExport(ArgumentType.String)]
+    public static SealValue Len(CallArgs args)
+    {
+        return args[0].AsString().Length;
+    }
     
     #endregion
     
