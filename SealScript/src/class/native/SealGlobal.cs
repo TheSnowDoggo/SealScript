@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 
 namespace SealScript;
@@ -198,11 +197,6 @@ public sealed class SealGlobal : SealObject
     {
         foreach (Type type in assembly.GetExportedTypes())
         {
-            if (type == typeof(SealGlobal))
-            {
-                continue;
-            }
-            
             if (!type.IsAssignableTo(typeof(SealObject)))
             {
                 continue;
