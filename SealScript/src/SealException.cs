@@ -8,7 +8,7 @@ public class SealException : Exception
         : base($"Error at {line}:{column} {message}")
     {
     }
-
+    
     public SealException(ILineNumbered lineNumbered, string message)
         : this(lineNumbered?.Line ?? -1, lineNumbered?.Column ?? -1, message)
     {

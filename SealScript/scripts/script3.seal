@@ -1,45 +1,11 @@
 #no_terminators
 
-class Vec2 {
-    var x: Number
-    var y: Number
-    
-    constructor(x: Number, y: Number) {
-        self.x = x
-        self.y = y
-    }
-    
-    static func zero() {
-        return Vec2.new(0, 0)
-    }
-    
-    func length() {
-        return sqrt(self.x * self.x + self.y * self.y)
-    }
-    
-    func length_squared() {
-        return self.x * self.x + self.y * self.y
-    }
-    
-    func abs() {
-        return Vec2.new(abs(self.x), abs(self.y))
-    }
-    
-    func unit() {
-        var length: Number = self.length_squared()
-        
-        if length == 0 {
-            return self.zero()
-        }
-        
-        length = sqrt(length)
-        
-        return Vec2.new(self.x / length, self.y / length)
-    }
-    
-    func to_string() {
-        return "{ " + self.x + ", " + self.y + " }"
-    }
-}
+// Paths are relative to the directory the script was parsed from
+const Vec2 = require("Vec2.seal")
 
-println(Vec2.new(1, 1).unit())
+var a = Vec2.new(1, 2)
+var b = Vec2.new(3, 4)
+
+println(Vec2.add(a, b)) // { 4, 6 }
+println(Vec2.mul(a, b)) // { 3, 8 }
+println(Vec2.mul(Vec2.add(a, b), 4)) // { 16, 24 }

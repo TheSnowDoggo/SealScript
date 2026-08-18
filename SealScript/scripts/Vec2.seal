@@ -1,0 +1,110 @@
+#no_terminators
+class Vec2 {
+    var x: Number
+    var y: Number
+    
+    constructor(x: Number, y: Number) {
+       self.x = x
+       self.y = y
+    }
+    
+    static func zero() {
+       return Vec2.new(0, 0)
+    }
+    
+    static func one() {
+       return Vec2.new(1, 1)
+    }
+    
+    static func add(a: Object, b: Object) {
+        return Vec2.new(a.x + b.x, a.y + b.y)
+    }
+    
+    static func sub(a: Object, b: Object) {
+        return Vec2.new(a.x - b.x, a.y - b.y)
+    }
+    
+    static func mul(a: Object, b: Number | Object) {
+        if typeof(b) == "Number" {
+            return Vec2.new(a.x * b, a.y * b)
+        }
+        return Vec2.new(a.x * b.x, a.y * b.y)
+    }
+    
+    static func div(a: Object, b: Number | Object) {
+        if typeof(b) == "Number" {
+            return Vec2.new(a.x / b, a.y / b)
+        }
+        return Vec2.new(a.x / b.x, a.y / b.y)
+    }
+    
+    static func mod(a: Object, b: Number | Object) {
+        if typeof(b) == "Number" {
+            return Vec2.new(a.x % b, a.y % b)
+        }
+        return Vec2.new(a.x % b.x, a.y % b.y)
+    }
+    
+    func clone() {
+       return Vec2.new(self.x, self.y)
+    }
+    
+    func length() {
+       return sqrt(self.x * self.x + self.y * self.y)
+    }
+    
+    func length_squared() {
+       return self.x * self.x + self.y * self.y
+    }
+    
+    func abs() {
+       return Vec2.new(abs(self.x), abs(self.y))
+    }
+    
+    func normalized() {
+       var length: Number = self.length_squared()
+       
+       if length == 0 {
+           return self.zero()
+       }
+       
+       length = sqrt(length)
+       
+       return Vec2.new(self.x / length, self.y / length)
+    }
+    
+    func floored() {
+       return Vec2.new(floor(self.x), floor(self.y))
+    }
+    
+    func ceiled() {
+       return Vec2.new(ceil(self.x), ceil(self.y))
+    }
+    
+    func truncated() {
+       return Vec2.new(truncate(self.x), truncate(self.y))
+    }
+    
+    func inversed() {
+       return Vec2.new(1 / self.x, 1 / self.y)
+    }
+    
+    func max(with: Number | Object) {
+       if typeof(with) == "Number" {
+           return Vec2.new(max(self.x, with), max(self.y, with))
+       }
+       return Vec2.new(max(self.x, with.x), max(self.y, with.y))
+    }
+    
+    func min(with: Number | Object) {
+       if typeof(with) == "Number" {
+           return Vec2.new(min(self.x, with), min(self.y, with))
+       }
+       return Vec2.new(min(self.x, with.x), min(self.y, with.y))
+    }
+    
+    func to_string() {
+       return "{ " + self.x + ", " + self.y + " }"
+    }
+}
+return Vec2

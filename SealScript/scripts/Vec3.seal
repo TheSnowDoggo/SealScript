@@ -1,0 +1,112 @@
+#no_terminators
+class Vec3 {
+   var x: Number
+   var y: Number
+   var z: Number
+   
+   constructor(x: Number, y: Number, z: Number) {
+       self.x = x
+       self.y = y
+       self.z = z
+   }
+   
+   static func zero() {
+       return Vec3.new(0, 0, 0)
+   }
+   
+   static func one() {
+      return Vec3.new(1, 1, 1)
+   }
+   
+   static func add(a: Object, b: Object) {
+       return Vec3.new(a.x + b.x, a.y + b.y, a.z + b.z)
+   }
+   
+   static func sub(a: Object, b: Object) {
+       return Vec3.new(a.x - b.x, a.y - b.y, a.z - b.z)
+   }
+   
+   static func mul(a: Object, b: Number | Object) {
+       if typeof(b) == "Number" {
+           return Vec3.new(a.x * b, a.y * b, a.z * b)
+       }
+       return Vec3.new(a.x * b.x, a.y * b.y, a.z * b.z)
+   }
+   
+   static func div(a: Object, b: Number | Object) {
+       if typeof(b) == "Number" {
+           return Vec3.new(a.x / b, a.y / b, a.z / b)
+       }
+       return Vec3.new(a.x / b.x, a.y / b.y, a.z / b.z)
+   }
+   
+   static func mod(a: Object, b: Number | Object) {
+       if typeof(b) == "Number" {
+           return Vec3.new(a.x % b, a.y % b, a.z % b)
+       }
+       return Vec3.new(a.x % b.x, a.y % b.y, a.z % b.z)
+   }
+   
+   func clone() {
+       return Vec3.new(self.x, self.y, self.z)
+   }
+   
+   func length() {
+       return sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+   }
+   
+   func length_squared() {
+       return self.x * self.x + self.y * self.y + self.z * self.z
+   }
+   
+   func abs() {
+       return Vec3.new(abs(self.x), abs(self.y), abs(self.z))
+   }
+   
+   func normalized() {
+       var length: Number = self.length_squared()
+       
+       if length == 0 {
+           return self.zero()
+       }
+       
+       length = sqrt(length)
+       
+       return Vec3.new(self.x / length, self.y / length, self.z / length)
+   }
+   
+   func floored() {
+       return Vec3.new(floor(self.x), floor(self.y), floor(self.z))
+   }
+   
+   func ceiled() {
+       return Vec3.new(ceil(self.x), ceil(self.y), ceil(self.z))
+   }
+   
+   func truncated() {
+       return Vec3.new(truncate(self.x), truncate(self.y), truncate(self.z))
+   }
+   
+   func inversed() {
+       return Vec3.new(1 / self.x, 1 / self.y, 1 / self.z)
+   }
+   
+   func max(with: Number | Object) {
+       if typeof(with) == "Number" {
+           return Vec3.new(max(self.x, with), max(self.y, with), max(self.z, with))
+       }
+       return Vec3.new(max(self.x, with.x), max(self.y, with.y), max(self.z, with.z))
+   }
+   
+   func min(with: Number | Object) {
+       if typeof(with) == "Number" {
+           return Vec3.new(min(self.x, with), min(self.y, with), min(self.z, with))
+       }
+       return Vec3.new(min(self.x, with.x), min(self.y, with.y), min(self.z, with.z))
+   }
+   
+   func to_string() {
+       return "{ " + self.x + ", " + self.y + ", " + self.z + " }"
+   }
+}
+return Vec3

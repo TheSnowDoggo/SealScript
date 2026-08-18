@@ -1,5 +1,5 @@
 #no_terminators
-return class Math {
+class Math {
     static func is_prime(x: Number) {
         if x == 2 {
             return true
@@ -19,3 +19,4 @@ return class Math {
         return true
     }
 }
+return Math
