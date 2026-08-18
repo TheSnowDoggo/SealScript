@@ -119,6 +119,12 @@ public sealed class SealGlobal : SealObject
         return Console.Read();
     }
 
+    [FunctionExport]
+    public static void Clear(CallArgs args)
+    {
+        Console.Clear();
+    }
+
     [FunctionExport(ArgumentType.String)]
     public static SealValue Require(CallArgs args)
     {
