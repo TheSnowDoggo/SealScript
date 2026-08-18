@@ -16,7 +16,7 @@ public class ForStatement : BlockStatement
             
             try
             {
-                context.DefineVariable(Identifier, value);
+                context.DefineVariable(Identifier, value, ArgumentType.None);
                 
                 for (int i = 0; i < Statements.Length; i++)
                 {

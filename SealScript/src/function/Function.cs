@@ -62,7 +62,10 @@ public abstract class Function
             {
                 ArgumentType expected = ArgumentTypes[i];
 
-                if (!args[i].IsTypeAllowed(expected))
+                // Note im using IsTypeIncluded not IsAssignableTo
+                // This disallows Nil assignment, e.g. Function can be assigned Nil
+                // or Number | String can be assigned Nil
+                if (!expected.IsTypeIncluded(args[i].ValueType))
                 {
                     throw new SealException(context,
                         $"{this} expected argument {i} to be of type {expected}, got {args[i].ValueType}.");

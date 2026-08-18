@@ -1,10 +1,6 @@
 #no_terminators
 return class Math {
-    static func is_prime(x) {
-        if typeof(x) != "Number" {
-            return false
-        }
-      
+    static func is_prime(x: Number) {
         if x == 2 {
             return true
         }

@@ -28,9 +28,9 @@ public class UserSealObject : SealObject
 
     public override string ToString()
     {
-        if (Class.Fields.TryGetValue("toString", out SealField field))
+        if (Class.Fields.TryGetValue("to_string", out SealField field))
         {
-            SealValue value = field.Get(null, "toString", this);
+            SealValue value = field.Get(null, "to_string", this);
 
             if (value.ValueType == SealValueType.Function)
             {

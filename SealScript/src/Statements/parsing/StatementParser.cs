@@ -324,11 +324,15 @@ public class StatementParser
             allowedTypes = ParseArgumentType(true);
         }
 
-        Expression expression = LiteralExpression.Nil;
+        Expression expression;
 
         if (_stream.TryConsume(TokenType.Assign))
         {
             expression = new ExpressionParser(_stream, ExpressionParsingMode.Statement).Parse();
+        }
+        else
+        {
+            expression = LiteralExpression.GetDefault(allowedTypes);
         }
 
         if (!_stream.StatementParsingFlags.HasFlag(StatementParsingFlag.NoTerminators))

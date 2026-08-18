@@ -1,16 +1,45 @@
 #no_terminators
 
-var Foo: Class = class Foo {
-    const id // Const Variables and Fields do not specify types (as they are immutable)
-    var name: String
+class Vec2 {
+    var x: Number
+    var y: Number
     
-    constructor(id: Number) {
-        self.id = id // Const fields can be set in a constructor
+    constructor(x: Number, y: Number) {
+        self.x = x
+        self.y = y
+    }
+    
+    static func zero() {
+        return Vec2.new(0, 0)
+    }
+    
+    func length() {
+        return sqrt(self.x * self.x + self.y * self.y)
+    }
+    
+    func length_squared() {
+        return self.x * self.x + self.y * self.y
+    }
+    
+    func abs() {
+        return Vec2.new(abs(self.x), abs(self.y))
+    }
+    
+    func unit() {
+        var length: Number = self.length_squared()
+        
+        if length == 0 {
+            return self.zero()
+        }
+        
+        length = sqrt(length)
+        
+        return Vec2.new(self.x / length, self.y / length)
+    }
+    
+    func to_string() {
+        return "{ " + self.x + ", " + self.y + " }"
     }
 }
 
-var obj = Foo.new(3)
-
-obj.name = "hello" // fine
-obj.name = 4 // Error at 15:0 Field Foo.name expected value of type String, got Number.
-obj.id = 3 // Error at 16:0 Cannot set field Foo.id as it is immutable.
+println(Vec2.new(1, 1).unit())

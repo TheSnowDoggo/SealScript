@@ -58,6 +58,9 @@ public sealed class SealGlobal : SealObject
     public static readonly NativeFunction Pow = ToBinary(Math.Pow);
     
     [FieldExport]
+    public static readonly NativeFunction Abs = ToUnary(Math.Abs);
+    
+    [FieldExport]
     public static readonly NativeFunction Exp = ToUnary(Math.Exp);
 
     [FieldExport]

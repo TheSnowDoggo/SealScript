@@ -97,11 +97,6 @@ public readonly struct SealValue : IEquatable<SealValue>
         return (ArgumentType)(1 << (int)valueType);
     }
     
-    public bool IsTypeAllowed(ArgumentType argumentType)
-    {
-        return (argumentType & ToArgumentType(ValueType)) != 0;
-    }
-    
     public bool AsBool()
     {
         return _value != 0;
