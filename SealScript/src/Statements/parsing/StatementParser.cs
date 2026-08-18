@@ -288,6 +288,10 @@ public class StatementParser
                 => ParseWhileStatement(),
             TokenType.Return
                 => ParseReturnStatement(),
+            TokenType.Continue
+                => ParseControlStatement(ReturnValue.Continue),
+            TokenType.Break
+                => ParseControlStatement(ReturnValue.Break),
             _ => throw new SealException(head, $"Unexpected starting token {head.TokenType}.")
         };
     }
@@ -533,6 +537,18 @@ public class StatementParser
             Statements = statements,
             Identifier = identifier,
             Expression = expression,
+        };
+    }
+
+    private ControlStatement ParseControlStatement(ReturnValue returnValue)
+    {
+        Token head = _stream.Read();
+
+        return new ControlStatement()
+        {
+            Line = head.Line,
+            Column = head.Column,
+            ReturnValue = returnValue,
         };
     }
 }

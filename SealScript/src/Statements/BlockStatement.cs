@@ -14,20 +14,11 @@ public class BlockStatement : Statement
         {
             for (int i = 0; i < Statements.Length; i++)
             {
-                Statement statement = Statements[i];
-                
-                ReturnValue returnValue = statement.Run(context);
+                ReturnValue returnValue = Statements[i].Run(context);
 
-                switch (returnValue.Type)
+                if (returnValue.Type != ReturnValueType.None)
                 {
-                case ReturnValueType.Return:
                     return returnValue;
-                case ReturnValueType.Continue:
-                    throw new SealException(statement, 
-                        "Cannot continue out of block.");
-                case ReturnValueType.Break:
-                    throw new SealException(statement, 
-                        "Cannot break out of block.");
                 }
             }
         }

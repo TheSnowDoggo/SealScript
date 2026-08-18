@@ -25,6 +25,7 @@ internal static class Program
         catch (Exception ex)
         {
             PrintError(ex.Message);
+            Console.Read();
         }
     }
 
