@@ -26,8 +26,6 @@ internal static class Program
         {
             PrintError(ex.Message);
         }
-
-        Console.Read();
     }
 
     private static void PrintError(string message)
