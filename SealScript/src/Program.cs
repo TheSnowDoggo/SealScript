@@ -4,35 +4,36 @@ namespace SealScript;
 
 internal static class Program
 {
-    private const string ScriptPath = "/home/luna-sparkle/RiderProjects/SealScript/SealScript/scripts/script3.seal";
-    
     private static void Main(string[] args)
     {
         SealGlobal.ImportExecutingAssembly();
 
-        RunNice();
-    }
+        if (args.Length < 1)
+        {
+            PrintError("Expected first argument to be a filepath.");
+            return;
+        }
 
-    private static void RunNice()
-    {
+        string filepath = args[0];
+        
         try
         {
-            var fn = UserFunction.CreateFromScript(ScriptPath);
+            var fn = UserFunction.CreateFromScript(filepath);
 
             fn.Invoke();
         }
-        catch (SealException ex)
+        catch (Exception ex)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write(ex.Message);
-            Console.ResetColor();
+            PrintError(ex.Message);
         }
-    }
-    
-    private static void RunDebug()
-    {
-        var fn = UserFunction.CreateFromScript(ScriptPath);
 
-        fn.Invoke();
+        Console.Read();
+    }
+
+    private static void PrintError(string message)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Write(message);
+        Console.ResetColor();
     }
 }
