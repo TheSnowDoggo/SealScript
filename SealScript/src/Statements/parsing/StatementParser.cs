@@ -321,9 +321,10 @@ public class StatementParser
         
         if (head.TokenType == TokenType.Const)
         {
-            allowedTypes = ArgumentType.None;
+            allowedTypes |= ArgumentType.Const;
         }
-        else if (_stream.TryConsume(TokenType.Colon))
+        
+        if (_stream.TryConsume(TokenType.Colon))
         {
             allowedTypes = ParseArgumentType(true);
         }

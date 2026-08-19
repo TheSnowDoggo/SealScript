@@ -17,7 +17,6 @@ public static class ArgumentTypeExtensions
         }
 
         var sb = new StringBuilder();
-        bool first = true;
 
         for (int i = 0; i < ArgumentTypeCount; i++)
         {
@@ -28,19 +27,11 @@ public static class ArgumentTypeExtensions
                 continue;
             }
 
-            if (!first)
-            {
-                sb.Append(" | ");
-            }
-            else
-            {
-                first = false;
-            }
-            
             sb.Append(argumentType);
+            sb.Append(" | ");
         }
 
-        return sb.ToString();
+        return sb.ToString(0, sb.Length - 3);
     }
     
     public static bool IsSingleType(this ArgumentType self)
@@ -79,14 +70,19 @@ public static class ArgumentTypeExtensions
                || !IsSingleType(self);
     }
     
-    public static bool IsTypeIncluded(this ArgumentType argumentType, SealValueType sealValueType)
+    public static bool IsTypeIncluded(this ArgumentType self, SealValueType sealValueType)
     {
-        return (argumentType & SealValue.ToArgumentType(sealValueType)) != 0;
+        return (self & SealValue.ToArgumentType(sealValueType)) != 0;
     }
 
-    public static bool IsAssignableTo(this ArgumentType argumentType, SealValueType sealValueType)
+    public static bool IsAssignableFrom(this ArgumentType self, SealValueType sealValueType)
     {
-        return argumentType.IsTypeIncluded(sealValueType)
-               || (argumentType.IsNilAssignable() && sealValueType == SealValueType.Nil);
+        return self.IsTypeIncluded(sealValueType)
+               || (sealValueType == SealValueType.Nil && self.IsNilAssignable());
+    }
+
+    public static bool IsConst(this ArgumentType self)
+    {
+        return (self & ArgumentType.Const) != 0;
     }
 }

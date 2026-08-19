@@ -124,6 +124,12 @@ public sealed class SealGlobal : SealObject
         Console.Clear();
     }
 
+    [FunctionExport(ArgumentType.Number, ArgumentType.String)]
+    public static SealValue Format(CallArgs args)
+    {
+        return args[0].AsNumber().ToString(args[1].AsString());
+    }
+
     [FunctionExport(ArgumentType.String)]
     public static SealValue Require(CallArgs args)
     {

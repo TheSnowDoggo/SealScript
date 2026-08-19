@@ -465,20 +465,6 @@ public class ExpressionParser
         
         _expressionStack.Push(expression);
     }
-    
-    private void ParseFunctionDefinition()
-    {
-        FunctionDefinition definition = new StatementParser(_stream).ParseFunctionDefinition();
-
-        _expressionStack.Push(new FunctionDefinitionExpression(definition));
-    }
-
-    private void ParseClassDefinition()
-    {
-        ClassDefinition definition = new StatementParser(_stream).ParseClassDefinition();
-
-        _expressionStack.Push(new ClassDefinitionExpression(definition));
-    }
 
     private void ParseArrayExpression()
     {
@@ -550,5 +536,19 @@ public class ExpressionParser
         _stream.Consume(TokenType.CloseBrace);
         
         _expressionStack.Push(new MapExpression(itemExpressions));
+    }
+    
+    private void ParseFunctionDefinition()
+    {
+        FunctionDefinition definition = new StatementParser(_stream).ParseFunctionDefinition();
+
+        _expressionStack.Push(new FunctionDefinitionExpression(definition));
+    }
+
+    private void ParseClassDefinition()
+    {
+        ClassDefinition definition = new StatementParser(_stream).ParseClassDefinition();
+
+        _expressionStack.Push(new ClassDefinitionExpression(definition));
     }
 }

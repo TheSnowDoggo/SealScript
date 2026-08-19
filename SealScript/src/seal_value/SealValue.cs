@@ -201,7 +201,7 @@ public readonly struct SealValue : IEquatable<SealValue>
             SealValueType.Nil => "nil",
             SealValueType.Bool => AsBool() ? "true" : "false",
             SealValueType.Number => AsNumber().ToString(CultureInfo.InvariantCulture),
-            SealValueType.String => useRawString ? AsString() : $"\"{AsString()}\"",
+            SealValueType.String => useRawString ? AsString() : AsString().ToUnescaped(),
             _ => _obj.ToString(),
         };
     }

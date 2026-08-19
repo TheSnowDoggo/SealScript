@@ -68,7 +68,7 @@ public class CallContext : ILineNumbered
         }
         
         if (allowedTypes != ArgumentType.None
-            && !allowedTypes.IsAssignableTo(value.ValueType))
+            && !allowedTypes.IsAssignableFrom(value.ValueType))
         {
             throw new SealException(this,
                 $"Variable {name} expected value of type {allowedTypes.ToArgumentString()}, got {value.ValueType}.");
@@ -92,12 +92,12 @@ public class CallContext : ILineNumbered
             throw new SealException(this, $"No variable with name {name} defined in current scope.");
         }
 
-        if (variable.AllowedTypes == ArgumentType.None)
+        if (variable.AllowedTypes.IsConst())
         {
             throw new SealException(this, $"Variable {name} cannot be set as it is immutable.");
         }
 
-        if (!variable.AllowedTypes.IsAssignableTo(newValue.ValueType))
+        if (!variable.AllowedTypes.IsAssignableFrom(newValue.ValueType))
         {
             throw new SealException(this,
                 $"Variable {name} expected value of type {variable.AllowedTypes.ToArgumentString()}, got {newValue.ValueType}.");

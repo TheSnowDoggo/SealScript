@@ -23,7 +23,7 @@ public class StaticUserSealField : SealField
             throw new SealException(context, $"Cannot set static field {name} as it is immutable.");
         }
 
-        if (!_allowedTypes.IsAssignableTo(value.ValueType))
+        if (!_allowedTypes.IsAssignableFrom(value.ValueType))
         {
             throw new SealException(context, 
                 $"Static field expected value of type {_allowedTypes.ToArgumentString()}, got {value.ValueType}.");

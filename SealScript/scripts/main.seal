@@ -1,11 +1,6 @@
 #no_terminators
 
-// Paths are relative to the directory the script was parsed from
-const Vec2 = require("Vec2.seal")
+var arr = ["\"hello\n\ttest\""]
 
-var a = Vec2.new(1, 2)
-var b = Vec2.new(3, 4)
-
-println(Vec2.add(a, b)) // { 4, 6 }
-println(Vec2.mul(a, b)) // { 3, 8 }
-println(Vec2.mul(Vec2.add(a, b), 4)) // { 16, 24 }
+println(arr)
+println(arr[0])

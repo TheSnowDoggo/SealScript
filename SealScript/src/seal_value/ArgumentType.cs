@@ -14,4 +14,5 @@ public enum ArgumentType
     Object   = 1 << 5,
     Class    = 1 << 6,
     Any      = (1 << 7) - 1,
+    Const    = 1 << 7,
 }

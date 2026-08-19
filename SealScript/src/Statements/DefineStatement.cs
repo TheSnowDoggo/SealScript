@@ -14,6 +14,8 @@ public class DefineStatement : ExpressionStatement
 
     public override string ToString()
     {
-        return Expression == null ? $"var {Name};" : $"var {Name} = {Expression};";
+        string begin = AllowedTypes.IsConst() ? "const" : "var";
+        
+        return Expression == null ? $"{begin} {Name};" : $"{begin} {Name} = {Expression};";
     }
 }

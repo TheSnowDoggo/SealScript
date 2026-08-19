@@ -20,12 +20,12 @@ public class UserSealField : SealField
     {
         var sealObject = (UserSealObject)self;
 
-        if (!sealObject.Constructing && _allowedTypes == ArgumentType.None)
+        if (!sealObject.Constructing && _allowedTypes.IsConst())
         {
             throw new SealException(context, $"Cannot set field {sealObject.Class.Name}.{name} as it is immutable.");
         }
         
-        if (!_allowedTypes.IsAssignableTo(value.ValueType))
+        if (!_allowedTypes.IsAssignableFrom(value.ValueType))
         {
             throw new SealException(context, 
                 $"Field {sealObject.Class.Name}.{name} expected value of type {_allowedTypes.ToArgumentString()}, got {value.ValueType}.");

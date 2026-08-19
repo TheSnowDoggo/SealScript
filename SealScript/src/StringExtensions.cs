@@ -62,4 +62,50 @@ public static class StringExtensions
         
         return sb.ToString();
     }
+
+    public static string ToUnescaped(this string self)
+    {
+        var sb = new StringBuilder();
+
+        sb.Append('\"');
+
+        for (int i = 0; i < self.Length; i++)
+        {
+            char c = self[i];
+
+            if (TryGetEscapeCode(c, out char escapeCode))
+            {
+                sb.Append('\\');
+                sb.Append(escapeCode);
+            }
+            else
+            {
+                sb.Append(c);
+            }
+        }
+        
+        sb.Append('\"');
+        
+        return sb.ToString();
+    }
+
+    public static bool TryGetEscapeCode(char escapeChar, out char escapeCode)
+    {
+        escapeCode = escapeChar switch
+        {
+            '\0' => '0',
+            '\a' => 'a',
+            '\b' => 'b',
+            '\f' => 'f',
+            '\n' => 'n',
+            '\r' => 'r',
+            '\t' => 't',
+            '\v' => 'v',
+            '"' => '"',
+            '\\' => '\\',
+            _ => '_',
+        };
+
+        return escapeCode != '_';
+    }
 }

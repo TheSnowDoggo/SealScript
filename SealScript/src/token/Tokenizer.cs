@@ -99,25 +99,24 @@ public class Tokenizer : IDisposable
         return c is '"' or '\'';
     }
 
-    private static char GetEscapeChar(char escapeCode) => escapeCode switch
-    {
-        '0' => '\0',
-        'a' => '\a',
-        'b' => '\b',
-        'f' => '\f',
-        'n' => '\n',
-        'r' => '\r',
-        't' => '\t',
-        'v' => '\v',
-        '\\' => '\\',
-        '\'' => '\'',
-        '\"' => '\"',
-        _ => '_',
-    };
-
     private static bool TryGetEscapeChar(char escapeCode, out char escapeChar)
     {
-        escapeChar = GetEscapeChar(escapeCode);
+        escapeChar = escapeCode switch
+        {
+            '0' => '\0',
+            'a' => '\a',
+            'b' => '\b',
+            'f' => '\f',
+            'n' => '\n',
+            'r' => '\r',
+            't' => '\t',
+            'v' => '\v',
+            '\\' => '\\',
+            '\'' => '\'',
+            '\"' => '\"',
+            _ => '_',
+        };
+        
         return escapeChar != '_';
     }
     

@@ -3,18 +3,18 @@ using System.Buffers;
 
 namespace SealScript.Collections;
 
-public struct PooledBuffer<T> : IDisposable
+public struct PooledArray<T> : IDisposable
 {
     private T[] _array;
     private int _size;
 
-    public PooledBuffer()
+    public PooledArray()
     {
         _array = [];
         _size = 0;
     }
 
-    public PooledBuffer(int length)
+    public PooledArray(int length)
     {
         _array = ArrayPool<T>.Shared.Rent(length);
         _size = length;
@@ -33,10 +33,10 @@ public struct PooledBuffer<T> : IDisposable
 
     public ref T this[int index] => ref _array[index];
 
-    public static implicit operator Span<T>(PooledBuffer<T> buffer)
-        => buffer.AsSpan();
-    public static implicit operator ReadOnlySpan<T>(PooledBuffer<T> buffer)
-        => buffer.AsReadonlySpan();
+    public static implicit operator Span<T>(PooledArray<T> array)
+        => array.AsSpan();
+    public static implicit operator ReadOnlySpan<T>(PooledArray<T> array)
+        => array.AsReadonlySpan();
 
     public Span<T> AsSpan()
     {

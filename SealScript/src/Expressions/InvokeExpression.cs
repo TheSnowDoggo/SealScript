@@ -42,7 +42,7 @@ public class InvokeExpression : Expression
 
         var function = (Function)functionValue;
 
-        using var args = new PooledBuffer<SealValue>(ArgumentExpressions.Length);
+        using var args = new PooledArray<SealValue>(ArgumentExpressions.Length);
 
         for (int i = 0; i < ArgumentExpressions.Length; i++)
         {

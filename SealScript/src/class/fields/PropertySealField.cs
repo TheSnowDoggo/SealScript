@@ -35,7 +35,7 @@ public class PropertySealField : SealField
             throw new SealException(context, $"Field {name} does not have a setter.");
         }
 
-        if (!_allowedTypes.IsAssignableTo(value.ValueType))
+        if (!_allowedTypes.IsAssignableFrom(value.ValueType))
         {
             throw new SealException(context, $"Field {name} expected value of type(s) [{_allowedTypes}], got {value.ValueType}.");
         }
